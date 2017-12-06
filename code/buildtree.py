@@ -5,6 +5,7 @@
 
 from datastructure import *
 from util import extractrelation
+NON_SPAN="NonSpan"
 
 def BFT(tree):
     """ Breadth-first treavsal on general RST tree
@@ -178,6 +179,7 @@ def buildtree(text):
     stack = []
     while queue:
         token = queue.pop(0)
+        
         if token == ')':
             # If ')', start processing
             content = [] # Content in the stack
@@ -192,6 +194,7 @@ def buildtree(text):
             if len(content) < 2:
                 raise ValueError("content = {}".format(content))
             label = content.pop(0)
+            
             if label == 'Root':
                 node = SpanNode(prop=label)
                 node = createnode(node, content)
@@ -218,6 +221,10 @@ def buildtree(text):
                 # Merge
                 relation = content.pop(0)
                 checkcontent(label, content)
+                ## Change Labels
+                if relation!="span":
+                    relation = NON_SPAN
+               
                 stack.append(('relation',relation))
             elif label == 'text':
                 # Merge
@@ -414,22 +421,23 @@ def getedunode(tree):
         
 ## ========================================================
 def test():
-    fname = "examples/wsj_0604.out.dis"
+    fname = "data/test/wsj_0644.out.dis"
     text = open(fname, 'r').read()
     # Build RST tree
     T = buildtree(text)
+    
     bft_nodelist = BFT(T)
-    # print len(bft_nodelist)
+    print len(bft_nodelist)
     # Binarize the RST tree
     T = binarizetree(T)
     # Back-propagating information from
     #   leaf node to root node
-    T = backprop(T)
+    # T = backprop(T)
     # Decoding shift-reduce actions from
     #   the binary RST tree
     actionlist = decodeSRaction(T)
-    # for action in actionlist:
-    #     print action
+    for action in actionlist:
+        print action
 
 
 if __name__ == '__main__':

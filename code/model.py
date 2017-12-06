@@ -8,8 +8,11 @@
 2, Shift-Reduce RST parsing for a given text sequence
 3, Save/load parsing model
 """
-
+from keras.utils import to_categorical
+from keras.models import Sequential
+from keras.layers import *
 from sklearn.svm import LinearSVC
+from sklearn.linear_model import LogisticRegression
 from cPickle import load, dump
 from parser import SRParser
 from feature import FeatureGenerator
@@ -21,7 +24,7 @@ import gzip, sys
 
 class ParsingModel(object):
     def __init__(self, vocab=None, idxlabelmap=None, clf=None,
-                 withdp=None, fdpvocab=None, fprojmat=None):
+                 withdp=None, fdpvocab=None, fprojmat=None, n_svd=0):
         """ Initialization
         
         :type vocab:
@@ -39,10 +42,16 @@ class ParsingModel(object):
         if clf is None:
             self.clf = LinearSVC(C=1.0, penalty='l1',
                 loss='squared_hinge', dual=False, tol=1e-7)
+            # self.clf = LogisticRegression(C=1.0,penalty="l1",tol=1e-7)
+            # self.clf = build_nn()
         else:
             self.clf = clf
         self.withdp = withdp
         self.dpvocab, self.projmat = None, None
+        self.n_svd = n_svd
+        self.svd = None
+        if self.n_svd > 0:
+            self.svd = TruncatedSVD(n_components=n_svd, n_iter=7, random_state=42)
         if withdp:
             print 'Loading projection matrix ...'
             with gzip.open(fdpvocab) as fin:
@@ -56,8 +65,12 @@ class ParsingModel(object):
         """ Perform batch-learning on parsing model
         """
         print 'Training ...'
+        if self.svd:
+            trnM = self.svd.fit_transform(trnM)
+            # print("trnM shape",trnM.shape)
+        # trnL = to_categorical(trnL)
+        # self.clf.fit(trnM.toarray(), trnL,validation_split=0.1,epochs=3)
         self.clf.fit(trnM, trnL)
-
 
     def predict(self, features):
         """ Predict parsing actions for a given set
@@ -69,8 +82,10 @@ class ParsingModel(object):
         """
         vec = vectorize(features, self.vocab,
                         self.dpvocab, self.projmat)
+        if self.svd:
+            vec = self.svd.transform(vec)
         label = self.clf.predict(vec)
-        # print label
+        
         return self.labelmap[label[0]]
 
 
@@ -80,9 +95,12 @@ class ParsingModel(object):
         """
         vec = vectorize(features, self.vocab,
                         self.dpvocab, self.projmat)
+        
+        if self.svd:
+            vec = self.svd.transform(vec)
+        # vals = self.clf.predict(vec.toarray())
         vals = self.clf.decision_function(vec)
-        # print vals.shape
-        # print len(self.labelmap)
+        
         labelvals = {}
         for idx in range(len(self.labelmap)):
             labelvals[self.labelmap[idx]] = vals[0,idx]
@@ -98,7 +116,7 @@ class ParsingModel(object):
         if not fname.endswith('.gz'):
             fname += '.gz'
         D = {'clf':self.clf, 'vocab':self.vocab,
-             'idxlabelmap':self.labelmap}
+             'idxlabelmap':self.labelmap,"svd":self.svd}
         with gzip.open(fname, 'w') as fout:
             dump(D, fout)
         print 'Save model into file: {}'.format(fname)
@@ -112,6 +130,7 @@ class ParsingModel(object):
         self.clf = D['clf']
         self.vocab = D['vocab']
         self.labelmap = D['idxlabelmap']
+        self.svd = D['svd']
         print 'Load model from file: {}'.format(fname)
 
 
@@ -150,4 +169,14 @@ class ParsingModel(object):
         rst = RSTTree()
         rst.asign_tree(tree)
         return rst
+    
+
+def build_nn():
+    model = Sequential()
+    model.add(Dense(80, input_dim=8000,activation="tanh"))
+    # model.add(Dense(60,activation="tanh"))
+    model.add(Dense(4,activation="softmax"))
+    
+    model.compile(optimizer='adam', loss='categorical_crossentropy',metrics=['accuracy'])
+    return model
             

@@ -36,7 +36,7 @@ def writebrackets(fname, brackets):
 
 def evalparser(path='./examples', report=False, 
                bcvocab=None, draw=True,
-               withdp=False, fdpvocab=None, fprojmat=None):
+               withdp=False, fdpvocab=None, fprojmat=None, pm = None):
     """ Test the parsing performance
 
     :type path: string
@@ -47,13 +47,14 @@ def evalparser(path='./examples', report=False,
     """
     # ----------------------------------------
     # Load the parsing model
-    print 'Load parsing model ...'
-    pm = ParsingModel(withdp=withdp,
-        fdpvocab=fdpvocab, fprojmat=fprojmat)
-    pm.loadmodel("model/parsing-model.pickle.gz")
+    if not pm:
+        print 'Load parsing model ...'
+        pm = ParsingModel(withdp=withdp,
+            fdpvocab=fdpvocab, fprojmat=fprojmat)
+        pm.loadmodel("model/parsing-model.pickle.gz")
     # ----------------------------------------
     # Evaluation
-    met = Metrics(levels=['span','nuclearity','relation'])
+    met = Metrics(levels=['span','nuclearity'])
     # ----------------------------------------
     # Read all files from the given path
     doclist = [joinpath(path, fname) for fname in listdir(path) if fname.endswith('.merge')]

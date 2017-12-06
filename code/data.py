@@ -14,6 +14,7 @@ Following three steps:
 
 from util import *
 from tree import RSTTree
+from buildtree import decodeSRaction
 from featselection import FeatureSelection
 from collections import defaultdict
 from scipy.sparse import lil_matrix, coo_matrix
@@ -39,6 +40,7 @@ class Data(object):
         self.M, self.L = None, None
         self.withdp = withdp
         self.dpvocab, self.projmat = None, None
+        
         if withdp:
             print 'Loading projection matrix ...'
             with gzip.open(fdpvocab) as fin:
@@ -65,6 +67,7 @@ class Data(object):
             actionlist, samplelist = rst.generate_samples(self.bcvocab)
             self.actionlist += actionlist
             self.samplelist += samplelist
+            
         
 
     def buildmatrix(self):
@@ -88,7 +91,7 @@ class Data(object):
             for (row, col) in zip(rows, cols):
                 val = vec[row, col]
                 self.M.append((sidx, col, val))
-
+        print("Labels types (distinct) ",len(set(self.L)),set(self.L))
 
     def buildvocab(self, topn):
         """ Build dict from the current data
@@ -99,6 +102,7 @@ class Data(object):
         featcounts, vocab = {}, {}
         for (action, sample) in zip(self.actionlist, self.samplelist):
             label = action2label(action)
+            # print(action, label)
             for feat in sample:
                 if feat[0] == 'DisRep':
                     # Skip the features for distributional
@@ -117,6 +121,7 @@ class Data(object):
             except KeyError:
                 nlabel = len(self.labelmap)
                 self.labelmap[label] = nlabel
+                print("label",label,"lidx",nlabel)
         # Construct freqtable
         nrows, ncols = len(featcounts), len(self.labelmap)
         freqtable = numpy.zeros((nrows, ncols))

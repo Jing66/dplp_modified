@@ -8,6 +8,7 @@ from sklearn.preprocessing import normalize
 from nltk import Tree
 from nltk.draw.util import CanvasFrame
 from nltk.draw import TreeWidget
+from sklearn.decomposition import TruncatedSVD 
 
 def label2action(label):
     """ Transform label to action
@@ -81,14 +82,23 @@ def vectorize(features, vocab, dpvocab=None, projmat=None):
     # Projection
     if withdp:
         nlat = projmat.shape[1]
-        vec_dense = lil_matrix((1, 3*nlat))
-        v1 = dpvec1.dot(projmat)
-        v2 = dpvec2.dot(projmat)
-        v3 = dpvec3.dot(projmat)
+        ## Concatenation form
+        # vec_dense = lil_matrix((1, 3*nlat))
+        # v1 = dpvec1.dot(projmat)
+        # v2 = dpvec2.dot(projmat)
+        # v3 = dpvec3.dot(projmat)
+        # vec_dense[0, 0:nlat] = normalize(v1)
+        # vec_dense[0, nlat:(2*nlat)] = normalize(v2)
+        # vec_dense[0, (2*nlat):(3*nlat)] = normalize(v3)
+        ## Difference form
+        vec_dense = lil_matrix((1, 2*nlat))
+        v1 = (dpvec1-dpvec2).dot(projmat)
+        v2 = (dpvec1-dpvec3).dot(projmat)
         vec_dense[0, 0:nlat] = normalize(v1)
         vec_dense[0, nlat:(2*nlat)] = normalize(v2)
-        vec_dense[0, (2*nlat):(3*nlat)] = normalize(v3)
+
         vec = hstack([vec, vec_dense])
+   
     return vec
 
 
