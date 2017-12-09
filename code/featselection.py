@@ -46,7 +46,7 @@ class FeatureSelection(object):
         :param valvocab: {feature:value}
         """
         vocab = {}
-        sorted_vals = sorted(valvocab.items(), key=itemgetter(1))
+        sorted_vals = sorted(list(valvocab.items()), key=itemgetter(1))
         sorted_vals = sorted_vals[::-1]
         for (idx, item) in enumerate(sorted_vals):
             if idx >= self.topn:
@@ -59,7 +59,7 @@ class FeatureSelection(object):
         """ Compute frequency values of features
         """
         valvocab = {}
-        for (feat, idx) in vocab.iteritems():
+        for (feat, idx) in vocab.items():
             valvocab[feat] = freqtable[idx,:].sum()
         return valvocab
 
@@ -68,7 +68,7 @@ class FeatureSelection(object):
         """
         """
         valvocab = {}
-        for (feat, idx) in vocab.iteritems():
+        for (feat, idx) in vocab.items():
             freq = freqtable[idx,:]
             valvocab[feat] = 1/(entropy(freq)+1e-3)
         return valvocab
@@ -80,7 +80,7 @@ class FeatureSelection(object):
         valvocab = {}
         freqvocab = self.frequency(vocab, freqtable)
         entvocab = self.entropy(vocab, freqtable)
-        for feat in vocab.iterkeys():
+        for feat in vocab.keys():
             freq = freqvocab[feat]
             ent = freqvocab[feat]
             valvocab[feat] = log(freq+1e-3)*(ent + 1e-3)
@@ -93,7 +93,7 @@ def test():
     freqtable = array(freqtable)
     fs = FeatureSelection(topn=2, method='freq-entropy')
     newvocab = fs.select(vocab, freqtable)
-    print newvocab
+    print(newvocab)
 
 
 if __name__ == '__main__':

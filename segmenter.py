@@ -1,7 +1,7 @@
 """ Call a pretrained segmenter for discourse segmentation
 """
 
-import discoseg.buildedu as buildedu
+from . import discoseg.buildedu as buildedu
 from sys import argv
 
 def main(readpath, writepath):
@@ -19,5 +19,5 @@ if __name__ == '__main__':
         writepath = argv[2]
         main(readpath, writepath)
     else:
-        print "python segmenter.py read_path [write_path]"
-        print "\tread_path - the document folder"
+        print("python segmenter.py read_path [write_path]")
+        print("\tread_path - the document folder")

@@ -3,13 +3,13 @@
 ## Date: 11-05-2014
 ## Time-stamp: <yangfeng 09/25/2015 16:32:42>
 
-from model import ParsingModel
-from tree import RSTTree
-from docreader import DocReader
-from evaluation import Metrics
+from .model import ParsingModel
+from .tree import RSTTree
+from .docreader import DocReader
+from .evaluation import Metrics
 from os import listdir
 from os.path import join as joinpath
-from util import drawrst
+from .util import drawrst
 
 
 def parse(pm, doc):
@@ -28,7 +28,7 @@ def parse(pm, doc):
 def writebrackets(fname, brackets):
     """ Write the bracketing results into file
     """
-    print 'Writing parsing results into file: {}'.format(fname)
+    print('Writing parsing results into file: {}'.format(fname))
     with open(fname, 'w') as fout:
         for item in brackets:
             fout.write(str(item) + '\n')
@@ -48,7 +48,7 @@ def evalparser(path='./examples', report=False,
     # ----------------------------------------
     # Load the parsing model
     if not pm:
-        print 'Load parsing model ...'
+        print('Load parsing model ...')
         pm = ParsingModel(withdp=withdp,
             fdpvocab=fdpvocab, fprojmat=fprojmat)
         pm.loadmodel("model/parsing-model.pickle.gz")

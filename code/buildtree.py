@@ -3,8 +3,8 @@
 ## Date: 09-10-2014
 ## Time-stamp: <yangfeng 09/25/2015 16:44:42>
 
-from datastructure import *
-from util import extractrelation
+from .datastructure import *
+from .util import extractrelation
 NON_SPAN="NonSpan"
 
 def BFT(tree):
@@ -316,8 +316,8 @@ def __getspaninfo(lnode, rnode):
     try:
         eduspan = (lnode.eduspan[0], rnode.eduspan[1])
     except TypeError:
-        print lnode.prop, rnode.prop
-        print lnode.nucspan, rnode.nucspan
+        print(lnode.prop, rnode.prop)
+        print(lnode.nucspan, rnode.nucspan)
     return eduspan
 
 
@@ -354,8 +354,8 @@ def __getrelationinfo(lnode, rnode):
     elif (lnode.prop=='Satellite') and (rnode.prop=='Nucleus'):
         relation = rnode.relation
     else:
-        print 'lnode.prop = {}, lnode.eduspan = {}'.format(lnode.prop, lnode.eduspan)
-        print 'rnode.prop = {}, lnode.eduspan = {}'.format(rnode.prop, rnode.eduspan)
+        print('lnode.prop = {}, lnode.eduspan = {}'.format(lnode.prop, lnode.eduspan))
+        print('rnode.prop = {}, lnode.eduspan = {}'.format(rnode.prop, rnode.eduspan))
         raise ValueError("Error when find relation for new node")
     return relation
 
@@ -427,7 +427,7 @@ def test():
     T = buildtree(text)
     
     bft_nodelist = BFT(T)
-    print len(bft_nodelist)
+    print(len(bft_nodelist))
     # Binarize the RST tree
     T = binarizetree(T)
     # Back-propagating information from
@@ -437,7 +437,7 @@ def test():
     #   the binary RST tree
     actionlist = decodeSRaction(T)
     for action in actionlist:
-        print action
+        print(action)
 
 
 if __name__ == '__main__':

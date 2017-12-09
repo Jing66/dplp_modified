@@ -8,17 +8,17 @@
 2, Shift-Reduce RST parsing for a given text sequence
 3, Save/load parsing model
 """
-from keras.utils import to_categorical
-from keras.models import Sequential
-from keras.layers import *
+# from keras.utils import to_categorical
+# from keras.models import Sequential
+# from keras.layers import *
 from sklearn.svm import LinearSVC
 from sklearn.linear_model import LogisticRegression
-from cPickle import load, dump
-from parser import SRParser
-from feature import FeatureGenerator
-from tree import RSTTree
-from util import *
-from datastructure import ActionError
+from pickle import load, dump
+from .parser import SRParser
+from .feature import FeatureGenerator
+from .tree import RSTTree
+from .util import *
+from .datastructure import ActionError
 from operator import itemgetter
 import gzip, sys
 
@@ -53,18 +53,18 @@ class ParsingModel(object):
         if self.n_svd > 0:
             self.svd = TruncatedSVD(n_components=n_svd, n_iter=7, random_state=42)
         if withdp:
-            print 'Loading projection matrix ...'
+            print('Loading projection matrix ...')
             with gzip.open(fdpvocab) as fin:
                 self.dpvocab = load(fin)
             with gzip.open(fprojmat) as fin:
                 self.projmat = load(fin)
-        print 'Finish initializing ParsingModel'
+        print('Finish initializing ParsingModel')
 
 
     def train(self, trnM, trnL):
         """ Perform batch-learning on parsing model
         """
-        print 'Training ...'
+        print('Training ...')
         if self.svd:
             trnM = self.svd.fit_transform(trnM)
             # print("trnM shape",trnM.shape)
@@ -104,7 +104,7 @@ class ParsingModel(object):
         labelvals = {}
         for idx in range(len(self.labelmap)):
             labelvals[self.labelmap[idx]] = vals[0,idx]
-        sortedlabels = sorted(labelvals.items(), key=itemgetter(1),
+        sortedlabels = sorted(list(labelvals.items()), key=itemgetter(1),
                               reverse=True)
         labels = [item[0] for item in sortedlabels]
         return labels
@@ -119,7 +119,7 @@ class ParsingModel(object):
              'idxlabelmap':self.labelmap,"svd":self.svd}
         with gzip.open(fname, 'w') as fout:
             dump(D, fout)
-        print 'Save model into file: {}'.format(fname)
+        print('Save model into file: {}'.format(fname))
 
 
     def loadmodel(self, fname):
@@ -131,7 +131,7 @@ class ParsingModel(object):
         self.vocab = D['vocab']
         self.labelmap = D['idxlabelmap']
         self.svd = D['svd']
-        print 'Load model from file: {}'.format(fname)
+        print('Load model from file: {}'.format(fname))
 
 
     def sr_parse(self, doc, bcvocab=None):

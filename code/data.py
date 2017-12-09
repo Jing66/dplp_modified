@@ -12,13 +12,13 @@ Following three steps:
 5, save/get vocabs (optional, necessary if new)
 """
 
-from util import *
-from tree import RSTTree
-from buildtree import decodeSRaction
-from featselection import FeatureSelection
+from .util import *
+from .tree import RSTTree
+from .buildtree import decodeSRaction
+from .featselection import FeatureSelection
 from collections import defaultdict
 from scipy.sparse import lil_matrix, coo_matrix
-from cPickle import dump, load
+from pickle import dump, load
 import os, numpy, gzip
 
 class Data(object):
@@ -42,12 +42,12 @@ class Data(object):
         self.dpvocab, self.projmat = None, None
         
         if withdp:
-            print 'Loading projection matrix ...'
+            print('Loading projection matrix ...')
             with gzip.open(fdpvocab) as fin:
                 self.dpvocab = load(fin)
             with gzip.open(fprojmat) as fin:
                 self.projmat = load(fin)
-        print 'Finish initializing Data'
+        print('Finish initializing Data')
 
 
         
@@ -60,7 +60,7 @@ class Data(object):
         # Read RST tree file
         files = [os.path.join(rpath, fname) for fname in os.listdir(rpath) if fname.endswith('.dis')]
         for fdis in files:
-            print 'Processing data from file: {}'.format(fdis)
+            print('Processing data from file: {}'.format(fdis))
             fmerge = fdis.replace('.dis', '.merge')
             rst = RSTTree(fdis, fmerge)
             rst.build()
@@ -91,7 +91,7 @@ class Data(object):
             for (row, col) in zip(rows, cols):
                 val = vec[row, col]
                 self.M.append((sidx, col, val))
-        print("Labels types (distinct) ",len(set(self.L)),set(self.L))
+        print(("Labels types (distinct) ",len(set(self.L)),set(self.L)))
 
     def buildvocab(self, topn):
         """ Build dict from the current data
@@ -121,16 +121,16 @@ class Data(object):
             except KeyError:
                 nlabel = len(self.labelmap)
                 self.labelmap[label] = nlabel
-                print("label",label,"lidx",nlabel)
+                print(("label",label,"lidx",nlabel))
         # Construct freqtable
         nrows, ncols = len(featcounts), len(self.labelmap)
         freqtable = numpy.zeros((nrows, ncols))
-        for (feat, nrow) in vocab.iteritems():
-            for (label, ncol) in self.labelmap.iteritems():
+        for (feat, nrow) in vocab.items():
+            for (label, ncol) in self.labelmap.items():
                 freqtable[nrow, ncol] = featcounts[feat][label]
         # Feature selection
         fs = FeatureSelection(topn=topn, method='frequency')
-        print 'Original vocab size: {}'.format(len(vocab))
+        print('Original vocab size: {}'.format(len(vocab)))
         self.vocab = fs.select(vocab, freqtable)
         
 
@@ -140,7 +140,7 @@ class Data(object):
         :type fname: string
         :param fname: 
         """
-        print 'Save data into: {}'.format(fdata)
+        print('Save data into: {}'.format(fdata))
         with open(fdata, 'w') as fout:
             line = str(self.nR) + "\t" + str(self.nC) + "\n"
             fout.write(line)
@@ -152,7 +152,7 @@ class Data(object):
             for item in self.L:
                 line = str(item) + '\n'
                 fout.write(line)
-        print 'Done with data saving'
+        print('Done with data saving')
 
 
     def loadmatrix(self, fdata, flabel):
@@ -176,9 +176,9 @@ class Data(object):
         labels = open(flabel).read().split('\n')
         if len(labels[-1]) == 0:
             labels.pop()
-        labels = map(int, labels)
-        print 'Load data matrix with shape: {}'.format(M.shape)
-        print 'Load {} labels'.format(len(labels))
+        labels = list(map(int, labels))
+        print('Load data matrix with shape: {}'.format(M.shape))
+        print('Load {} labels'.format(len(labels)))
         return M, labels
                 
 
@@ -211,7 +211,7 @@ class Data(object):
         D = {'vocab':self.vocab, 'labelidxmap':self.labelmap}
         with gzip.open(fname, 'w') as fout:
             dump(D, fout)
-        print 'Save vocab into file: {}'.format(fname)
+        print('Save vocab into file: {}'.format(fname))
 
 
     def loadvocab(self, fname):

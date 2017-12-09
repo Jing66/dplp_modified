@@ -80,16 +80,16 @@ class Metrics(object):
                 p = numpy.array(self.span_perf.percision).mean()
                 r = numpy.array(self.span_perf.recall).mean()
                 f1 = (2 * p * r) / (p + r)
-                print 'F1 score on span level is {0:.4f}'.format(f1)
+                print('F1 score on span level is {0:.4f}'.format(f1))
             elif 'nuclearity' == level:
                 p = numpy.array(self.nuc_perf.percision).mean()
                 r = numpy.array(self.nuc_perf.recall).mean()
                 f1 = (2 * p * r) / (p + r)
-                print 'F1 score on nuclearity level is {0:.4f}'.format(f1)
+                print('F1 score on nuclearity level is {0:.4f}'.format(f1))
             elif 'relation' == level:
                 p = numpy.array(self.rela_perf.percision).mean()
                 r = numpy.array(self.rela_perf.recall).mean()
                 f1 = (2 * p * r) / (p + r)
-                print 'F1 score on relation level is {0:.4f}'.format(f1)
+                print('F1 score on relation level is {0:.4f}'.format(f1))
             else:
                 raise ValueError("Unrecognized evaluation level")

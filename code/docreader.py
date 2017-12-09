@@ -3,7 +3,7 @@
 ## Date: 02-14-2015
 ## Time-stamp: <yangfeng 02/19/2015 21:01:09>
 
-from datastructure import Token, Doc
+from .datastructure import Token, Doc
 from os.path import isfile
 import sys
 
@@ -61,7 +61,7 @@ class DocReader(object):
         try:
             tok.eduidx = int(items[9])
         except ValueError:
-            print tok.word, self.fmerge
+            print(tok.word, self.fmerge)
             # sys.exit()
             pass
         return tok
@@ -86,4 +86,4 @@ if __name__ == '__main__':
     dr = DocReader()
     fmerge = "../data/training/file1.merge"
     doc = dr.read(fmerge)
-    print len(doc.edudict)
+    print(len(doc.edudict))

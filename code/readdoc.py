@@ -5,8 +5,8 @@
 
 from os import listdir
 from os.path import join
-from docreader import DocReader
-from cPickle import dump
+from .docreader import DocReader
+from pickle import dump
 import gzip
 
 def readdoc(rpath, fdocdict):
@@ -16,6 +16,6 @@ def readdoc(rpath, fdocdict):
     for fmerge in files:
         doc = dr.read(fmerge)
         docdict[fmerge] = doc
-    print 'Write doc dict into {}'.format(fdocdict)
+    print('Write doc dict into {}'.format(fdocdict))
     with gzip.open(fdocdict, 'w') as fout:
         dump(docdict, fout)
